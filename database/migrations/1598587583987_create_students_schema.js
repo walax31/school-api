@@ -11,7 +11,7 @@ class CreateStudentsSchema extends Schema {
       table.string('last_name',120).notNullable()
       table.string('email').notNullable().unique()
       table.string('password',).notNullable()
-      table.integer('group_id').unsigned().notNullable()
+      table.integer('group_id').unsigned()
       table.timestamps()
 
       table.foreign('group_id')
