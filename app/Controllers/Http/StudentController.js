@@ -32,7 +32,7 @@ class StudentController {
   async store({request}){
       const { first_name, last_name, email, password } = request.body
       const missingKeys = []
-      if (!first_name) missingKeys.push('first_name')
+    if (!first_name) missingKeys.push('first_name')
     if (!last_name) missingKeys.push('last_name')
     if (!email) missingKeys.push('email')
     if (!password) missingKeys.push('password')
