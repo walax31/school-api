@@ -10,8 +10,8 @@ class CreateEnrollmentsSchema extends Schema {
       table.float('mark').default(0)
       table.timestamp('mark_date').default(this.fn.now())
       table.timestamps()
-      table.integer('student_id').notNullable().unsigned()
-      table.integer('subject_id').notNullable().unsigned()
+      table.integer('student_id').unsigned()
+      table.integer('subject_id').unsigned()
 
       table
       .foreign('student_id')
