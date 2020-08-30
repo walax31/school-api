@@ -2,12 +2,12 @@
 
 const Database = use(`Database`);
 
-function numberTypeParameValidator(number) {
-  if (Number.isNaN(parseInt(number))) {
-    error: `param:${number} is not supported,please use number type param intnstead`;
+
+  function numberTypeParamValidator(number) {
+    if (Number.isNaN(parseInt(number))) { return { error: `param:${number} is not supported,please use number type param intnstead` } }
+    return {}
   }
-  return {};
-}
+
 
 class EnrollmentController {
   async index() {
@@ -18,10 +18,10 @@ class EnrollmentController {
   async show({ request }) {
     const { id } = request.params;
 
-    const validateValue = numberTypeParameValidator(id);
+    const validateValue = numberTypeParamValidator(id)
 
     if (validateValue.error)
-      return { status: 500, error: validateValue.error, data: undefined };
+    return { status: 500, error: validateValue.error, data: undefined }
 
     const enrollments = await Database
       .select('*')

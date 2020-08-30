@@ -3,9 +3,9 @@
 const Database= use('Database')
 const Hash = use('Hash')
 
-function numberTypeParameValidator(number){
-    if (Number.isNaN(parseInt(number))){error: `param:${number} is not supported,please use number type param intnstead`}
-    return {}
+function numberTypeParamValidator(number) {
+  if (Number.isNaN(parseInt(number))) { return { error: `param:${number} is not supported,please use number type param intnstead` } }
+  return {}
 }
 class StudentController {
     async index(){
@@ -16,10 +16,10 @@ class StudentController {
     async show({request}){
         const {id} =request.params
 
-        const validateValue =numberTypeParameValidator(id)
+       const validateValue = numberTypeParamValidator(id)
 
         if (validateValue.error)
-        return {status:500 ,error:validateValue.error,data: undefined}
+          return { status: 500, error: validateValue.error, data: undefined }
     
     const students= await Database
     .select('*')
