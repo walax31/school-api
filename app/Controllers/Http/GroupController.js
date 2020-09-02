@@ -1,6 +1,7 @@
 "use strict";
 
 const Database = use(`Database`);
+const Group =use('App/Models/Group')
 
 function numberTypeParamValidator(number) {
   if (Number.isNaN(parseInt(number))) {
@@ -12,41 +13,47 @@ function numberTypeParamValidator(number) {
 }
 
 class GroupController {
-  async index() {
-    const group = await Database.table("groups");
+  async index({request}) {
+   
+    const { references=undefined} =request.qs
+    const groups = Group.query()
+    if (references){
+       const extractedReferences =references.split(",")
+       groups.with(extractedReferences)
+    }
 
-    return { status: 200, error: undefined, data: group };
+    return { status: 200, error: undefined, data:await groups.fetch() };
   }
+ 
+ 
   async show({ request }) {
     const { id } = request.params;
-
+    const group =await Group.find(id)
     const validateValue = numberTypeParamValidator(id);
 
     if (validateValue.error)
       return { status: 500, error: validateValue.error, data: undefined };
 
-    const enrollments = await Database.select("*")
-      .from("groups")
-      .where("groups_id", id)
-      .first();
-
+    
     return { status: 200, error: undefined, data: group || {} };
   }
+ 
+ 
   async store({ request }) {
     const { name } = request.body;
     const rules = {
-      first_name: "required",
-      last_name: "requried",
-      email: "required|email|unique:teachers,email",
-      password: "required|min:8",
-    };
+      name: "required",
+      };
 
     const validation = await Validator.validateAll(request.body, rules);
     if (validation.fails())
       return { status: 422, error: validation.messages(), data: undefined };
 
-    const enrollment = await Database.table("groups").insert({ name });
-
+      const group = new Group()
+      group.name =name
+     
+    
+      await group.save()
     return { status: 200, error: undefined, data: { name } };
   }
 
