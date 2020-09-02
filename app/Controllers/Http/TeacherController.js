@@ -3,7 +3,7 @@
 const Database = use("Database");
 const Hash = use("Hash");
 const Validator = use("Validator");
-const Teacher =use('App/Models/Teacher')
+const Teacher = use("App/Models/Teacher");
 
 function numberTypeParamValidator(number) {
   if (Number.isNaN(parseInt(number))) {
@@ -16,33 +16,31 @@ function numberTypeParamValidator(number) {
 
 class TeacherController {
   async index() {
-    const teachers = await Database.table("teachers");
-
-    return { status: 200, error: undefined, data: teachers };
+    const { references = undefined } = request.qs;
+    const teachers = Teacher.query();
+    if (references) {
+      const extractedReferences = references.split(",");
+      teachers.with(extractedReferences);
+    }
+    return { status: 200, error: undefined, data: await teachers.fetch() };
+  
   }
 
-
- 
- 
- 
   async show({ request }) {
     const { id } = request.params;
-    const teacher= await Teacher.find(id)
+    const teacher = await Teacher.find(id);
 
     const validateValue = numberTypeParamValidator(id);
 
     if (validateValue.error)
       return { status: 500, error: validateValue.error, data: undefined };
 
-   
     return { status: 200, error: undefined, data: teachers || {} };
   }
 
-
   async store({ request }) {
-    const { first_name, last_name, email, password,group_id,} = request.body;
-    
-    
+    const { first_name, last_name, email, password, group_id } = request.body;
+
     const rules = {
       first_name: "required",
       last_name: "required",
@@ -54,16 +52,14 @@ class TeacherController {
     if (validation.fails())
       return { status: 422, error: validation.messages(), data: undefined };
 
-
     const hashedPassword = await Hash.make(password);
-    const teacher= new Teacher()
-    
-    teacher.first_name=first_name
-    teacher.last_name=last_name
-    teacher.email=email
-    teacher.password=password
-    await teacher.save()
+    const teacher = new Teacher();
 
+    teacher.first_name = first_name;
+    teacher.last_name = last_name;
+    teacher.email = email;
+    teacher.password = password;
+    await teacher.save();
 
     return {
       status: 200,
@@ -72,10 +68,9 @@ class TeacherController {
     };
   }
 
-
   async update({ request }) {
     const { body, params } = request;
- 
+
     const { id } = params;
     const { first_name, last_name, email } = body;
 
@@ -89,14 +84,10 @@ class TeacherController {
     return { status: 200, error: undefined, data: teacher };
   }
 
-
   async destroy({ request }) {
     const { id } = request.params;
 
-   
     await Database.table("teachers").where({ teacher_id: id }).delete();
-
- 
 
     return { status: 200, error: undefined, data: { massage: "success" } };
   }
