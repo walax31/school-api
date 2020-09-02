@@ -3,6 +3,7 @@
 const Database = use("Database");
 const Hash = use("Hash");
 const Validator = use("Validator");
+const Student =use('App/Models/Student')
 
 function numberTypeParamValidator(number) {
   if (Number.isNaN(parseInt(number))) {
@@ -13,28 +14,34 @@ function numberTypeParamValidator(number) {
   return {};
 }
 class StudentController {
-  async index() {
-    const students = await Database.table("students");
+  async index({request}) {
+    const {references=undefined} =request.qs
+    const students =Student.query()
+    if (references){
+      const extractedReferences =references.split(",")
+       students.with(extractedReferences)
+    }
 
-    return { status: 200, error: undefined, data: students };
+    return { status: 200, error: undefined, data:await students.fetch()  };
   }
+
+
+
   async show({ request }) {
     const { id } = request.params;
-
+    const student =await Student.find(id)
     const validateValue = numberTypeParamValidator(id);
 
     if (validateValue.error)
-      return { status: 500, error: validateValue.error, data: undefined };
+        return { status: 500, error: validateValue.error, data: undefined };
 
-    const students = await Database.select("*")
-      .from("students")
-      .where("student_id", id)
-      .first();
 
     return { status: 200, error: undefined, data: students || {} };
   }
+  
+  
   async store({ request }) {
-    const { first_name, last_name, email, password } = request.body;
+    const { first_name, last_name, email, password,group_id } = request.body;
 
     const rules = {
       first_name: "required",
@@ -48,13 +55,12 @@ class StudentController {
       return { status: 422, error: validation.messages(), data: undefined };
 
     const hashedPassword = await Hash.make(password);
-
-    const student = await Database.table("students").insert({
-      first_name,
-      last_name,
-      email,
-      password: hashedPassword,
-    });
+    const student =new Student()
+    student.first_name=first_name
+    student.last_name=last_name
+    student.email=email
+    student.password=password
+    await student.save()
 
     return {
       status: 200,
